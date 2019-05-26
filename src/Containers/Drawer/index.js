@@ -1,63 +1,63 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import classNames from 'classnames'
-import { withStyles } from '@material-ui/core/styles'
-import Drawer from '@material-ui/core/Drawer'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import List from '@material-ui/core/List'
-import Typography from '@material-ui/core/Typography'
-import Divider from '@material-ui/core/Divider'
-import IconButton from '@material-ui/core/IconButton'
-import MenuIcon from '@material-ui/icons/Menu'
-import ExitIcon from '@material-ui/icons/ExitToApp'
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-import ChevronRightIcon from '@material-ui/icons/ChevronRight'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import PipelineIcon from '@material-ui/icons/FilterList'
-import ClientsIcon from '@material-ui/icons/People'
-import SettingsIcon from '@material-ui/icons/Settings'
-import AssignmentIcon from '@material-ui/icons/Assignment'
-import AssessmentIcon from '@material-ui/icons/Assessment'
-import { Link } from 'react-router-dom'
-import Avatar from '@material-ui/core/Avatar'
-import { openSnack, openAlert } from '../../actions'
-import { addDeal, openDealModal } from '../../Components/Board/actions'
-import { LOGOUT } from '../../constants/actionTypes'
-import { openDrawer, closeDrawer, changeSection } from './actions'
+import React from "react";
+import { connect } from "react-redux";
+import classNames from "classnames";
+import { withStyles } from "@material-ui/core/styles";
+import Drawer from "@material-ui/core/Drawer";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import List from "@material-ui/core/List";
+import Typography from "@material-ui/core/Typography";
+import Divider from "@material-ui/core/Divider";
+import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from "@material-ui/icons/Menu";
+import ExitIcon from "@material-ui/icons/ExitToApp";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
+import PipelineIcon from "@material-ui/icons/FilterList";
+import ClientsIcon from "@material-ui/icons/People";
+import SettingsIcon from "@material-ui/icons/Settings";
+import AssignmentIcon from "@material-ui/icons/Assignment";
+import AssessmentIcon from "@material-ui/icons/Assessment";
+import { Link } from "react-router-dom";
+import Avatar from "@material-ui/core/Avatar";
+import { openSnack, openAlert } from "../../actions";
+import { addDeal, openDealModal } from "../../Components/Board/actions";
+import { LOGOUT } from "../../constants/actionTypes";
+import { openDrawer, closeDrawer, changeSection } from "./actions";
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     open: state.routeReducer.open,
     section: state.routeReducer.section
-  }
-}
+  };
+};
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
     openSnack: (type, message) => dispatch(openSnack(type, message)),
     openAlert: (message, alertFunction) =>
       dispatch(openAlert(message, alertFunction)),
     openDrawer: () => dispatch(openDrawer()),
     closeDrawer: () => dispatch(closeDrawer()),
-    changeSection: (section) => dispatch(changeSection(section)),
+    changeSection: section => dispatch(changeSection(section)),
     addDeal: () => dispatch(addDeal()),
-    openDealModal: (type) => dispatch(openDealModal(type)),
+    openDealModal: type => dispatch(openDealModal(type)),
     onClickLogout: () => dispatch({ type: LOGOUT })
-  }
-}
+  };
+};
 
-const drawerWidth = 280
+const drawerWidth = 280;
 
-const styles = (theme) => ({
+const styles = theme => ({
   root: {
-    display: 'flex'
+    display: "flex"
   },
   appBar: {
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen
     })
@@ -65,7 +65,7 @@ const styles = (theme) => ({
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen
     })
@@ -75,7 +75,7 @@ const styles = (theme) => ({
     marginRight: 20
   },
   hide: {
-    display: 'none'
+    display: "none"
   },
   drawer: {
     width: drawerWidth,
@@ -85,11 +85,11 @@ const styles = (theme) => ({
     width: drawerWidth
   },
   drawerHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '0 8px',
+    display: "flex",
+    alignItems: "center",
+    padding: "0 8px",
     ...theme.mixins.toolbar,
-    justifyContent: 'space-between'
+    justifyContent: "space-between"
   },
   avatar: {
     margin: 10
@@ -97,67 +97,76 @@ const styles = (theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing.unit * 3,
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen
     }),
     marginLeft: -drawerWidth
   },
   contentShift: {
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen
     }),
     marginLeft: 0
   }
-})
+});
 
 class Header extends React.Component {
-  render () {
-    const { classes, theme, open, openDrawer, closeDrawer } = this.props
+  render() {
+    const {
+      classes,
+      theme,
+      open,
+      openDrawer,
+      closeDrawer,
+      currentUser
+    } = this.props;
 
     return (
       <div className={classes.root}>
         <CssBaseline />
         <AppBar
-          position='fixed'
+          position="fixed"
           className={classNames(classes.appBar, {
             [classes.appBarShift]: open
           })}
         >
           <Toolbar disableGutters={!open}>
             <IconButton
-              color='inherit'
-              aria-label='Open drawer'
+              color="inherit"
+              aria-label="Open drawer"
               onClick={openDrawer}
               className={classNames(classes.menuButton, open && classes.hide)}
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant='h6' color='inherit' noWrap>
+            <Typography variant="h6" color="inherit" noWrap>
               {this.props.appName}
             </Typography>
           </Toolbar>
         </AppBar>
         <Drawer
           className={classes.drawer}
-          variant='persistent'
-          anchor='left'
+          variant="persistent"
+          anchor="left"
           open={open}
           classes={{
             paper: classes.drawerPaper
           }}
         >
           <div className={classes.drawerHeader}>
-            <Avatar
-              alt={this.props.currentUser.username}
-              src={this.props.currentUser.image}
-              className={classes.avatar}
-            />
+            {currentUser && (
+              <Avatar
+                alt={currentUser.userfullname}
+                src={currentUser.userphoto}
+                className={classes.avatar}
+              />
+            )}
 
-            {this.props.currentUser.username}
+            {currentUser && currentUser.userfullname}
             <IconButton onClick={closeDrawer}>
-              {theme.direction === 'ltr' ? (
+              {theme.direction === "ltr" ? (
                 <ChevronLeftIcon />
               ) : (
                 <ChevronRightIcon />
@@ -169,51 +178,51 @@ class Header extends React.Component {
             <ListItem
               button
               component={Link}
-              to='/pipeline'
+              to="/pipeline"
               // onClick={() => changeSection("Pipeline")}
             >
               <ListItemIcon>
                 <PipelineIcon />
               </ListItemIcon>
-              <ListItemText primary={'Воронка'} />
+              <ListItemText primary={"Воронка"} />
             </ListItem>
-            <ListItem button component={Link} to='/clients'>
+            <ListItem button component={Link} to="/clients">
               <ListItemIcon>
                 <ClientsIcon />
               </ListItemIcon>
-              <ListItemText primary={'Клиенты'} />
+              <ListItemText primary={"Клиенты"} />
             </ListItem>
             <ListItem
               button
               component={Link}
-              to='/reports'
+              to="/reports"
               // onClick={() => changeSection("Reports")}
             >
               <ListItemIcon>
                 <AssignmentIcon />
               </ListItemIcon>
-              <ListItemText primary={'Отчеты'} />
+              <ListItemText primary={"Отчеты"} />
             </ListItem>
-            <ListItem button component={Link} to='/statistics'>
+            <ListItem button component={Link} to="/statistics">
               <ListItemIcon>
                 <AssessmentIcon />
               </ListItemIcon>
-              <ListItemText primary={'Статистика'} />
+              <ListItemText primary={"Статистика"} />
             </ListItem>
           </List>
           <Divider />
           <List>
-            <ListItem button component={Link} to='/settings'>
+            <ListItem button component={Link} to="/settings">
               <ListItemIcon>
                 <SettingsIcon />
               </ListItemIcon>
-              <ListItemText primary={'Настройки'} />
+              <ListItemText primary={"Настройки"} />
             </ListItem>
             <ListItem button onClick={this.props.onClickLogout}>
               <ListItemIcon>
                 <ExitIcon />
               </ListItemIcon>
-              <ListItemText primary={'Выйти'} />
+              <ListItemText primary={"Выйти"} />
             </ListItem>
           </List>
         </Drawer>
@@ -226,11 +235,11 @@ class Header extends React.Component {
           {this.props.children}
         </main>
       </div>
-    )
+    );
   }
 }
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withStyles(styles, { withTheme: true })(Header))
+)(withStyles(styles, { withTheme: true })(Header));

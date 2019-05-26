@@ -23,6 +23,16 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import "moment/locale/ru";
 import { Divider, Paper } from "@material-ui/core";
+import agent from "../../agent";
+import {
+  CREATE_DEAL,
+  REMOVE_DEAL,
+  UPDATE_DEAL,
+  TASKS_LOADED,
+  TASK_CREATED,
+  TASK_DELETED,
+  TASK_UPDATED
+} from "../../constants";
 const mapStateToProps = state => ({ ...state.boardReducer });
 // const mapStateToProps = state => ({
 //   dealModalStatus: state.boardReducer.dealModalStatus,
@@ -38,7 +48,14 @@ const mapStateToProps = state => ({ ...state.boardReducer });
 
 const mapDispatchToProps = dispatch => ({
   closeDealModal: () => dispatch(closeDealModal()),
-  onChangeDealField: (field, text) => dispatch(changeDealField(field, text))
+  onChangeDealField: (field, text) => dispatch(changeDealField(field, text)),
+  onCreate: payload => dispatch({ type: CREATE_DEAL, payload }),
+  onDelete: payload => dispatch({ type: REMOVE_DEAL, payload }),
+  onUpdate: payload => dispatch({ type: UPDATE_DEAL, payload }),
+  onLoad: payload => dispatch({ type: TASKS_LOADED, payload }),
+  onInsertTask: payload => dispatch({ type: TASK_CREATED, payload }),
+  onDeleteTask: payload => dispatch({ type: TASK_DELETED, payload }),
+  onUpdateTask: payload => dispatch({ type: TASK_UPDATED, payload })
 });
 
 const styles = theme => ({
@@ -58,7 +75,7 @@ const styles = theme => ({
   formContent: {
     display: "flex",
     justifyContent: "space-between",
-    padding:24
+    padding: 24
   },
   formBlock: {
     width: "49%"
@@ -89,46 +106,97 @@ class DealModal extends React.Component {
     currentLocale: "ru",
     // newTask: this.props.newTask,
     tasks: [
-      {
-        id: 1,
-        name: "create stuff",
-        status: false,
-        date: new Date(Date.now() + 24 * 60 * 60 * 1000)
-      },
-      {
-        id: 2,
-        name: "do stuff",
-        status: false,
-        date: new Date(Date.now() + 24 * 60 * 60 * 1000)
-      }
+      // {
+      //   id: 1,
+      //   name: "create stuff",
+      //   status: false,
+      //   date: new Date(Date.now() + 24 * 60 * 60 * 1000)
+      // },
+      // {
+      //   id: 2,
+      //   name: "do stuff",
+      //   status: false,
+      //   date: new Date(Date.now() + 24 * 60 * 60 * 1000)
+      // }
     ]
   };
+
   createNewTask = ({ name, date }) => ({
     name,
-    date,
-    status: false,
-    //TODO: FIX THIS ID!!!!
-    id: this.state.tasks.length + 1
+    date
+    // status: false,
+    // //TODO: FIX THIS ID!!!!
+    // id: this.state.tasks.length + 1
   });
+
+  // getTaskIndex = task =>
+  //   this.state.tasks.reduce((taskIndex, item, index) => {
+  //     return (taskIndex = item.id === task.id ? index : taskIndex);
+  //   }, -1);
+
   getTaskIndex = task =>
-    this.state.tasks.reduce((taskIndex, item, index) => {
-      return (taskIndex = item.id === task.id ? index : taskIndex);
-    }, -1);
+    this.props.tasks.findIndex(item => item.id === task.id);
+
   handleDateChange = date => {
     this.setState({ selectedDate: date });
   };
 
   //Change insert task
-  insertTask = task =>
-    this.setState(state => ({ tasks: [...state.tasks, task] }));
-
-  handleChange = task => event => {
-    let tasks = [...this.state.tasks];
-    tasks[this.getTaskIndex(task)].status = event.target.checked;
-    this.setState({ tasks });
+  insertTask = async task => {
+    this.props.onInsertTask(await agent.Tasks.create(this.props.dealid, task));
   };
+  // this.setState(state => ({ tasks: [...state.tasks, task] }));
+
+  handleChange = task => async event => {
+    this.props.onUpdateTask(
+      await agent.Tasks.update(task.id, {
+        ...task,
+        status: event.target.checked
+      })
+    );
+    // let tasks = [...this.state.tasks];
+    // tasks[this.getTaskIndex(task)].status = event.target.checked;
+    // this.setState({ tasks });
+  };
+
+  async componentDidUpdate() {
+    const { dealid, isTaskLoaded, dealModalStatus } = this.props;
+    if (dealid && !isTaskLoaded && dealModalStatus) {
+      this.props.onLoad(await agent.Tasks.all(dealid));
+    }
+  }
+
+  submit = async () => {
+    const { type } = this.props;
+    const deal = {
+      clientname: this.props.contact,
+      clientemail: this.props.email,
+      clientphone: this.props.phone,
+      clientcompanyname: this.props.company,
+      dealprice: this.props.price,
+      dealname: this.props.name
+    };
+    type === "update" &&
+      this.props.onUpdate(
+        await agent.Deals.update(this.props.dealid, this.props.clientid, deal)
+      );
+    type === "insert" && this.props.onCreate(await agent.Deals.create(deal));
+  };
+
+  removeDeal = async () => {
+    const { dealid } = this.props;
+    this.props.onDelete(dealid);
+    try {
+      await agent.Deals.remove(dealid);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   render() {
     const { classes } = this.props;
+    const { tasks } = this.props;
+
     return (
       <React.Fragment>
         <Dialog
@@ -149,9 +217,11 @@ class DealModal extends React.Component {
               <Typography variant="h6" color="inherit" className={classes.flex}>
                 Сделка
               </Typography>
-              <Button color="inherit" onClick={this.props.closeDealModal}>
-                Сохранить
-              </Button>
+              {this.props.type === "update" && (
+                <Button color="inherit" onClick={this.removeDeal}>
+                  Удалить
+                </Button>
+              )}
             </Toolbar>
           </AppBar>
           {/* <DialogTitle id="form-dialog-title">Сделка</DialogTitle> */}
@@ -224,93 +294,110 @@ class DealModal extends React.Component {
                     this.props.onChangeDealField("company", e.target.value)
                   }
                 />
+                <TextField
+                  margin="dense"
+                  id="company"
+                  label="Дизайнер"
+                  type="text"
+                  defaultValue={
+                    this.props.type === "update" ? "Федоров Василий" : ""
+                  }
+                  fullWidth
+                  // onChange={e =>
+                  //   this.props.onChangeDealField("company", e.target.value)
+                  // }
+                />
               </Paper>
             </div>
-
-            <div className={classes.formBlock}>
-              <Paper elevation={2} className={classes.paper}>
-                <div className={`${classes.formBlock} ${classes.formContent}`}>
-                  <TextField
-                    margin="dense"
-                    id="name"
-                    label="Новая Задача"
-                    type="text"
-                    value={this.props.newTask}
-                    fullWidth
-                    onKeyPress={e => {
-                      if (e.key === "Enter") {
+            {tasks && (
+              <div className={classes.formBlock}>
+                <Paper elevation={2} className={classes.paper}>
+                  <div
+                    className={`${classes.formBlock} ${classes.formContent}`}
+                  >
+                    <TextField
+                      margin="dense"
+                      id="name"
+                      label="Новая Задача"
+                      type="text"
+                      value={this.props.newTask}
+                      fullWidth
+                      onKeyPress={e => {
+                        if (e.key === "Enter") {
+                          this.insertTask(
+                            this.createNewTask({
+                              name: this.props.newTask,
+                              date: this.state.selectedDate
+                            })
+                          );
+                        }
+                      }}
+                      onChange={e => {
+                        this.props.onChangeDealField("newTask", e.target.value);
+                      }}
+                    />
+                    <MuiPickersUtilsProvider
+                      utils={DateFnsUtils}
+                      locale={ruLocale}
+                    >
+                      <InlineDatePicker
+                        margin="dense"
+                        value={this.state.selectedDate}
+                        onChange={this.handleDateChange}
+                        fullWidth
+                        label="Срок задачи"
+                      />
+                    </MuiPickersUtilsProvider>
+                    <Button
+                      disabled={this.props.type === "insert" ? true : false}
+                      onClick={() =>
                         this.insertTask(
                           this.createNewTask({
                             name: this.props.newTask,
                             date: this.state.selectedDate
                           })
-                        );
+                        )
                       }
-                    }}
-                    onChange={e => {
-                      this.props.onChangeDealField("newTask", e.target.value);
-                    }}
-                  />
-                  <MuiPickersUtilsProvider
-                    utils={DateFnsUtils}
-                    locale={ruLocale}
-                  >
-                    <InlineDatePicker
-                      margin="dense"
-                      value={this.state.selectedDate}
-                      onChange={this.handleDateChange}
-                      fullWidth
-                      label="Срок задачи"
-                    />
-                  </MuiPickersUtilsProvider>
-                  <Button
-                    onClick={() =>
-                      this.insertTask(
-                        this.createNewTask({
-                          name: this.props.newTask,
-                          date: this.state.selectedDate
-                        })
-                      )
-                    }
-                  >
-                    Добавить
-                  </Button>
-                </div>
-                <FormLabel component="legend">Список задач</FormLabel>
-                <FormGroup>
-                  {this.state.tasks.map(task => {
-                    return (
-                      <React.Fragment>
-                        <div className={classes.task}>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={task.status}
-                                onChange={this.handleChange(task)}
-                                value={task.name}
-                              />
-                            }
-                            label={task.name}
-                          />
-                          <Moment format="L" locale="ru">
-                            {task.date}
-                          </Moment>
-                        </div>
-                        <Divider />
-                      </React.Fragment>
-                    );
-                  })}
-                </FormGroup>
-              </Paper>
-            </div>
+                    >
+                      Добавить
+                    </Button>
+                  </div>
+                  <FormLabel component="legend">Список задач</FormLabel>
+                  <FormGroup>
+                    {this.props.tasks.map(task => {
+                      return (
+                        <React.Fragment>
+                          <div className={classes.task}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={task.status}
+                                  onChange={this.handleChange(task)}
+                                  value={task.name}
+                                />
+                              }
+                              label={task.name}
+                            />
+                            <Moment format="L" locale="ru">
+                              {task.date}
+                            </Moment>
+                          </div>
+                          <Divider />
+                        </React.Fragment>
+                      );
+                    })}
+                  </FormGroup>
+                </Paper>
+              </div>
+            )}
           </DialogContent>
           <DialogActions>
             <Button onClick={this.props.closeDealModal} color="primary">
               Отменить
             </Button>
-            <Button onClick={this.props.closeDealModal} color="primary">
+            <Button onClick={this.submit} color="primary">
               {this.props.type === "update" && "Обновить"}
-              {this.props.type === "insert" && "добавить"}
+              {this.props.type === "insert" && "Добавить"}
             </Button>
           </DialogActions>
         </Dialog>

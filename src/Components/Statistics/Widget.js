@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Typography, Paper } from '@material-ui/core';
+import React, { Component } from "react";
+import { Typography, Paper } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 
 const styles = {
@@ -7,7 +7,7 @@ const styles = {
     width: "100%",
     boxShadow: "none",
     border: "1px solid #eee",
-    borderRadius: ".8rem",
+    borderRadius: ".8rem"
     // boxShadow: "inset 0 0 0 20px rgba(0,0,0,.24)"
   },
   header: {
@@ -28,7 +28,7 @@ const styles = {
     lineHeight: 1
   },
   bodyTitle: {
-    fintSize: "1.6rem",
+    fintSize: "1.6rem"
   },
 
   footer: {
@@ -42,7 +42,7 @@ const styles = {
   footerText: {
     width: "100%",
     fontSize: "1.2rem",
-    display: "flex",
+    display: "flex"
   },
   footerTitle: {
     overflow: "hidden",
@@ -63,20 +63,26 @@ class Widget extends Component {
           <Typography className={classes.bodyTitle}>{widget.title}</Typography>
         </div>
         <div className={classes.body}>
-          <Typography
-            className={classes.bodyValue}>{widget.data.count}</Typography>
-          <Typography className={classes.bodyTitle} color="textSecondary">{widget.data.label}</Typography>
-        </div>
-        <div className={classes.footer}>
-          <Typography className={classes.footerText} color="textSecondary">
-            <span className={classes.footerTitle}>{widget.data.extra.label}</span>
-            :
-            <b className={classes.footerValue}>{widget.data.extra.count}</b>
+          <Typography className={classes.bodyValue}>
+            {widget.data.count}
+          </Typography>
+          <Typography className={classes.bodyTitle} color="textSecondary">
+            {widget.data.label}
           </Typography>
         </div>
+        {widget.data.extra && (
+          <div className={classes.footer}>
+            <Typography className={classes.footerText} color="textSecondary">
+              <span className={classes.footerTitle}>
+                {widget.data.extra.label}
+              </span>
+              :<b className={classes.footerValue}>{widget.data.extra.count}</b>
+            </Typography>
+          </div>
+        )}
       </Paper>
     );
   }
 }
 
-export default withStyles(styles)(Widget)
+export default withStyles(styles)(Widget);

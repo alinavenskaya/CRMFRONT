@@ -35,13 +35,13 @@ class DealItem extends React.PureComponent {
       >
         <img
           className={classes.avatar}
-          src={deal.manager.avatarUrl}
+          src={deal.manager.avatar}
           alt={deal.manager.name}
         />
         <div className={classes.content}>
           <h4 className={classes.row}>{deal.name}</h4>
-          <p className={classes.row}>{deal.contact}</p>
-          <p className={classes.row}>{deal.phone}</p>
+          <p className={classes.row}>{deal.client.company}</p>
+          <p className={classes.row}>{deal.client.phone}</p>
           <p className={classes.row}>{deal.price} Руб</p>
         </div>
       </ItemContainer>

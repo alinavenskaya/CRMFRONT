@@ -63,7 +63,6 @@ class DealsList extends React.Component {
         type={listType}
         ignoreContainerClipping={ignoreContainerClipping}
         isDropDisabled={isDropDisabled}
-        isCombineEnabled={isCombineEnabled}
       >
         {(dropProvided, dropSnapshot) => (
           <ListWrapper

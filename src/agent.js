@@ -1,30 +1,30 @@
-import superagentPromise from 'superagent-promise'
-import _superagent from 'superagent'
+import superagentPromise from "superagent-promise";
+import _superagent from "superagent";
 
-const superagent = superagentPromise(_superagent, global.Promise)
+const superagent = superagentPromise(_superagent, global.Promise);
 
-// const API_ROOT = "http://localhost:8080";
-const API_ROOT = 'https://conduit.productionready.io/api'
+const API_ROOT = "http://localhost:8080";
+// const API_ROOT = "https://conduit.productionready.io/api";
 
 // const encode = encodeURIComponent;
-const responseBody = (res) => res.body
+const responseBody = res => res.body;
 
-let token = null
-const tokenPlugin = (req) => {
+let token = null;
+const tokenPlugin = req => {
   if (token) {
-    req.set('authorization', `Token ${token}`)
+    req.set("authorization", `Token ${token}`);
   }
-}
+};
 
 // const contentPlugin = req => req.set("Content-Type", "application/json");
 
 const requests = {
-  del: (url) =>
+  del: url =>
     superagent
       .del(`${API_ROOT}${url}`)
       .use(tokenPlugin)
       .then(responseBody),
-  get: (url) =>
+  get: url =>
     superagent
       .get(`${API_ROOT}${url}`)
       .use(tokenPlugin)
@@ -41,49 +41,53 @@ const requests = {
       .use(tokenPlugin)
       // .use(contentPlugin)
       .then(responseBody)
-}
+};
 
 const Auth = {
-  current: () => requests.get('/user'),
+  current: () => requests.get("/users/"),
   login: (email, password) =>
-    requests.post('/users/login', { user: { email, password } }),
+    requests.post("/users/signin", { user: { email, password } }),
   register: (username, email, password) =>
-    requests.post('/users', { user: { username, email, password } }),
-  save: (user) => requests.put('/user', { user })
-}
+    requests.post("/users/signup", { user: { username, email, password } }),
+  save: user => requests.put("/user", { user })
+};
 
 const Goals = {
-  getAll: (userid) => requests.get(`/goals/${userid}`),
-  create: (goal) => requests.post(`/goal`, { goal }),
-  delete: (goalId) => requests.del(`/goal/${goalId}`),
-  update: (goal) => requests.put(`/goal/`, { goal })
-}
+  all: () => requests.get(`/goal/`),
+  create: goal => requests.post(`/goal`, { goal }),
+  delete: goalId => requests.del(`/goal/${goalId}`),
+  update: goal => requests.put(`/goal/`, { goal })
+};
 
 const Tasks = {
-  getAll: (dealid) => requests.get(`/tasks/${dealid}`),
-  create: (task) => requests.post(`/task`, { task }),
-  delete: (taskid) => requests.del(`/task/${taskid}`),
-  update: (task) => requests.put(`/task/`, { task })
-}
+  all: dealid => requests.get(`/task/${dealid}`),
+  create: (dealid, task) => requests.post(`/task/${dealid}`, task),
+  delete: taskid => requests.del(`/task/${taskid}`),
+  update: (taskid, task) => requests.put(`/task/${taskid}`, task)
+};
 
 const Clients = {
-  getAll: (userid) => requests.get(`/clients/${userid}`),
-  create: (client) => requests.post(`/client`, { client }),
-  delete: (clientid) => requests.del(`/client/${clientid}`),
-  update: (client) => requests.put(`/client/`, { client })
-}
+  all: () => requests.get(`/clients/`),
+  create: client => requests.post(`/client`, { client }),
+  delete: clientid => requests.del(`/client/${clientid}`),
+  update: client => requests.put(`/client/`, { client })
+};
 
 const Deals = {
-  getAll: (userid) => requests.get(`/deals/${userid}`),
-  create: (deal) => requests.post(`/deal`, { deal }),
-  delete: (dealid) => requests.del(`/deal/${dealid}`),
-  update: (dealid, deal) => requests.put(`/deal/${dealid}`, { deal })
+  all: userid => requests.get(`/deals/${userid}`),
+  create: deal => requests.post(`/deal`, deal),
+  remove: dealid => requests.del(`/deal/${dealid}`),
+  update: (dealid, clientid, deal) =>
+    requests.put(`/deal/${dealid}/${clientid}`, deal),
+  move: (dealid, deal) => requests.put(`/deal/move/${dealid}`, deal)
   // TODO: change deal stage
-}
+};
 
-const Statistics = {}
+const Dashboard = {
+  all: () => requests.get("/dashboard")
+};
 
-const Reports = {}
+const Reports = {};
 
 // const Tags = {
 //   getAll: () => requests.get("/tags")
@@ -129,14 +133,14 @@ export default {
   Goals,
   Tasks,
   Clients,
-  Statistics,
+  Dashboard,
   Reports,
   //   Articles,
   //   Auth,
   //   Comments,
   //   Profile,
   //   Tags,
-  setToken: (_token) => {
-    token = _token
+  setToken: _token => {
+    token = _token;
   }
-}
+};

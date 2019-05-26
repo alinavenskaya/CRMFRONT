@@ -18,8 +18,10 @@ import {
   PagingPanel,
   TableFilterRow
 } from "@devexpress/dx-react-grid-material-ui";
+import { connect } from "react-redux";
 import { Template, TemplateConnector } from "@devexpress/dx-react-core";
-
+import { CLIENTS_LOADED, CLIENTS_UNLOADED } from "../../constants/actionTypes";
+import agent from "../../agent";
 const tableMessages = {
   noData: "Нет данных"
 };
@@ -66,7 +68,14 @@ const Row = ({ tableRow, selected, onToggle, ...restProps }) => {
   );
 };
 
-export default class Client extends React.PureComponent {
+const mapStateToProps = state => ({ ...state.clients });
+
+const mapDispatchToProps = dispatch => ({
+  onLoad: payload => dispatch({ type: CLIENTS_LOADED, payload }),
+  onUnload: () => dispatch({ type: CLIENTS_UNLOADED })
+});
+
+class Client extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -78,18 +87,18 @@ export default class Client extends React.PureComponent {
         { name: "email", title: "Email" }
       ],
       rows: [
-        {
-          name: "Евгений Николаевич",
-          phone: "+79867633574",
-          company: "Банк СПБ",
-          email: "Nikolaevich@bspb.com"
-        },
-        {
-          name: "Алексей Петрович",
-          phone: "+78673450978",
-          company: "Рога и копыта",
-          email: "Roga@copita.ru"
-        }
+        // {
+        //   name: "Евгений Николаевич",
+        //   phone: "+79867633574",
+        //   company: "Банк СПБ",
+        //   email: "Nikolaevich@bspb.com"
+        // },
+        // {
+        //   name: "Алексей Петрович",
+        //   phone: "+78673450978",
+        //   company: "Рога и копыта",
+        //   email: "Roga@copita.ru"
+        // }
       ],
       //   rows: generateRows({ length: 8 }),
       searchValue: "",
@@ -105,6 +114,13 @@ export default class Client extends React.PureComponent {
     this.changeSorting = sorting => this.setState({ sorting });
     this.changeCurrentPage = currentPage => this.setState({ currentPage });
     this.changePageSize = pageSize => this.setState({ pageSize });
+  }
+  async componentWillMount() {
+    this.props.onLoad(await agent.Clients.all());
+    this.setState({ rows: this.props.rows });
+  }
+  componentWillUnmount() {
+    this.props.onUnload();
   }
 
   render() {
@@ -143,7 +159,7 @@ export default class Client extends React.PureComponent {
           <IntegratedPaging />
           <IntegratedSorting />
           <IntegratedFiltering />
-          <Table messages={tableMessages} rowComponent={Row} />
+          <Table messages={tableMessages} />
           <TableHeaderRow showSortingControls />
           <PagingPanel pageSizes={pageSizes} messages={pagingPanelMessages} />
           <Toolbar />
@@ -161,9 +177,9 @@ export default class Client extends React.PureComponent {
                     selected={
                       selection.findIndex(i => i === params.tableRow.rowId) > -1
                     }
-                    onToggle={() =>
-                      toggleSelection({ rowIds: [params.tableRow.rowId] })
-                    }
+                    onToggle={toggleSelection({
+                      rowIds: [params.tableRow.rowId]
+                    })}
                   />
                 )}
               </TemplateConnector>
@@ -174,3 +190,8 @@ export default class Client extends React.PureComponent {
     );
   }
 }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Client);

@@ -19,8 +19,13 @@ export const SNACK_TYPE_CHANGE = "SNACK_TYPE_CHANGE";
 export const ALERT_STATUS_CLOSE = "ALERT_STATUS_CLOSE";
 export const ALERT_STATUS_OPEN = "ALERT_STATUS_OPEN";
 export const ALERT_STATUS_ACCEPT = "ALERT_STATUS_ACCEPT";
-
-
+export const CREATE_DEAL = "CREATE_DEAL";
+export const UPDATE_DEAL = "UPDATE_DEAL";
+export const REMOVE_DEAL = "REMOVE_DEAL";
+export const TASKS_LOADED = "TASKS_LOADED";
+export const TASK_CREATED = "TASK_CREATED";
+export const TASK_DELETED = "TASK_DELETED";
+export const TASK_UPDATED = "TASK_UPDATED";
 export const colors = {
   blue: {
     deep: "rgb(0, 121, 191)",

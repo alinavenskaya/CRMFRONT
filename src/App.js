@@ -38,7 +38,7 @@ class App extends React.Component {
   }
 
   componentWillMount() {
-    const token = window.localStorage.getItem("jwt");
+    const token = window.localStorage.getItem("Token");
     if (token) {
       agent.setToken(token);
     }
@@ -62,11 +62,11 @@ class App extends React.Component {
                       <Pipeline />
                     </Drawer>
                   ) : (
-                      <Landing />
-                    )
-                ) : (
-                    <Loader />
+                    <Landing />
                   )
+                ) : (
+                  <Loader />
+                )
               }
             />
             {appLoaded ? (
@@ -81,8 +81,8 @@ class App extends React.Component {
                 <Route exact path="/clients" component={Client} />
               </Drawer>
             ) : (
-                <Loader />
-              )}
+              <Loader />
+            )}
           </Switch>
         </MuiThemeProvider>
       </div>

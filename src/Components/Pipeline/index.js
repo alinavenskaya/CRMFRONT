@@ -7,7 +7,7 @@ import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 import Board from "../../Components/Board";
 import { openDealModal } from "../Board/actions";
-const mapStateToProps = state => {};
+const mapStateToProps = state => ({});
 
 const mapDispatchToProps = dispatch => {
   return {

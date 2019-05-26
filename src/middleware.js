@@ -20,7 +20,6 @@ const promiseMiddleware = store => next => action => {
         if (!skipTracking && currentState.viewChangeCounter !== currentView) {
           return;
         }
-        console.log("RESULT", res);
         action.payload = res;
         store.dispatch({ type: ASYNC_END, promise: action.payload });
         store.dispatch(action);
@@ -30,7 +29,6 @@ const promiseMiddleware = store => next => action => {
         if (!skipTracking && currentState.viewChangeCounter !== currentView) {
           return;
         }
-        console.log("ERROR", error);
         action.error = true;
         action.payload = error.response.body;
         if (!action.skipTracking) {
@@ -49,19 +47,17 @@ const promiseMiddleware = store => next => action => {
 const localStorageMiddleware = store => next => action => {
   if (action.type === REGISTER || action.type === LOGIN) {
     if (!action.error) {
-      window.localStorage.setItem("jwt", action.payload.user.token);
+      window.localStorage.setItem("Token", action.payload.user.token);
       agent.setToken(action.payload.user.token);
     }
   } else if (action.type === LOGOUT) {
-    window.localStorage.setItem("jwt", "");
+    window.localStorage.setItem("Token", "");
     agent.setToken(null);
   }
 
   next(action);
 };
 
-function isPromise(v) {
-  return v && typeof v.then === "function";
-}
+const isPromise = v => v && typeof v.then === "function";
 
 export { promiseMiddleware, localStorageMiddleware };

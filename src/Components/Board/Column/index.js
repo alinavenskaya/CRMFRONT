@@ -46,7 +46,6 @@ class Column extends Component {
               listType="DEAL"
               deals={deals}
               internalScroll={this.props.isScrollable}
-              isCombineEnabled={Boolean(this.props.isCombineEnabled)}
             />
           </div>
         )}
